@@ -1,0 +1,54 @@
+# Author::    Guido De Rosa  (mailto:job@guidoderosa.net)
+# Copyright:: Copyright (c) Guido De Rosa
+# License::   General Public License, version 2
+
+require "pp" # DEBUG
+require 'xmlsimple'
+require 'net/ssh'
+
+class Session 
+  @@Name = "auto-backup"
+
+  def initialize
+    @conf_file = "#@@Name.conf"
+  end
+
+  def run
+    read_conf()
+    detect_hardware()
+    generate_machine_id()
+  end
+
+  private
+  
+  def read_conf()
+    @conf = {}
+    File.foreach(@conf_file) do |line|
+      line.strip!
+      line = line.sub(/#.*$/,"")
+      keyval = line.scan(/[^=]+/)
+      @conf[keyval[0]] = keyval[1] if (keyval[0])
+    end
+  end
+
+  def identify_machine()
+    @lshw_xml_text   = `lshw -xml`
+    @lshw_xmlsimple  = XmlSimple.xml_in(@lshw_xml_text) 
+  end
+
+  # Machine ID here generated is generally different from the one you 
+  # find in the BIOS/DMI. Machine identification will use a sort of 
+  # "fuzzy logic": if you have changed *some* hardware components 
+  # (even the mobo) but you have retained most of the other ones, your machine
+  # will still be identified.
+  def generate_machine_id()
+      
+  end
+
+end
+
+s = Session.new()
+
+s.run()
+
+
